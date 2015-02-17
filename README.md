@@ -3,7 +3,7 @@ alfred-nest
 
 An Alfred workflow for controlling a Nest thermostat.
 
-![Screenshot](doc/main.png?raw=true)
+![Screenshot](doc/main.jpg?raw=true)
 
 Installation
 ------------
