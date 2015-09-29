@@ -116,9 +116,11 @@ func (t TempCommand) Do(query string) (out string, err error) {
 
 	if thermostat.HvacMode == ModeRange {
 		if msg.TargetTemp < thermostat.AmbientTemperature(config.Scale).Value() {
-			newTemp, err = session.SetTargetTemp(msg.DeviceId, msg.Temperature(), TypeLow)
-		} else {
+			// If the target temp is less than the ambient temp, we've lowered the high temp
 			newTemp, err = session.SetTargetTemp(msg.DeviceId, msg.Temperature(), TypeHigh)
+		} else if msg.TargetTemp > thermostat.AmbientTemperature(config.Scale).Value() {
+			// If the target temp is greater than the ambient temp, we've raised the low temp
+			newTemp, err = session.SetTargetTemp(msg.DeviceId, msg.Temperature(), TypeLow)
 		}
 	} else {
 		newTemp, err = session.SetTargetTemp(msg.DeviceId, msg.Temperature(), "")
