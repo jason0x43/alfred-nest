@@ -2,4 +2,4 @@
 credentials.go
 oauthgen
 workflow/alfred-nest
-alfred-nest.workflow
+alfred-nest.alfredworkflow
