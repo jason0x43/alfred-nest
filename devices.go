@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -192,11 +193,15 @@ func getModeItems(prefix, query string, selected HvacMode) (items []alfred.Item)
 
 func getScaleItems(prefix, query string, selected TempScale) (items []alfred.Item) {
 	addItem := func(scale TempScale, desc string) {
+		data := configMessage{Property: "scale", Scale: scale}
+		dataString, _ := json.Marshal(data)
+
 		if alfred.FuzzyMatches(string(scale), query) {
 			items = append(items, alfred.MakeChoice(alfred.Item{
 				Title:        string(scale),
 				SubtitleAll:  desc,
 				Autocomplete: prefix + string(scale),
+				Arg:          "config " + string(dataString),
 			}, selected == scale))
 		}
 	}
