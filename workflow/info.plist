@@ -82,6 +82,8 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>concurrently</key>
+				<false/>
 				<key>escaping</key>
 				<integer>4</integer>
 				<key>script</key>
@@ -161,6 +163,8 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>concurrently</key>
+				<false/>
 				<key>escaping</key>
 				<integer>4</integer>
 				<key>script</key>
@@ -178,6 +182,8 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>concurrently</key>
+				<false/>
 				<key>escaping</key>
 				<integer>4</integer>
 				<key>script</key>
@@ -194,7 +200,7 @@
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Version: 0.1.0</string>
+	<string>Version: 0.1.1</string>
 	<key>uidata</key>
 	<dict>
 		<key>05259E81-CC29-49C5-B96F-794CC2C99604</key>
