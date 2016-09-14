@@ -11,34 +11,30 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/jason0x43/go-log"
 )
 
 const (
-	ApiHost = "https://developer-api.nest.com"
+	nestAPI = "https://developer-api.nest.com"
 )
 
+// AllData is all the data returned for a user's account
 type AllData struct {
-	Metadata   Metadata             `json:"metadata"`
-	Devices    Devices              `json:"devices"`
+	Metadata struct {
+		AccessToken   string `json:"access_token"`
+		ClientVersion int64  `json:"client_version"`
+	} `json:"metadata"`
+	Devices struct {
+		Thermostats map[string]Thermostat
+	} `json:"thermostats"`
 	Structures map[string]Structure `json:"structures"`
 }
 
-type Metadata struct {
-	AccessToken   string `json:"access_token"`
-	ClientVersion int64  `json:"client_version"`
-}
-
-type Devices struct {
-	Thermostats map[string]Thermostat `json:"thermostats"`
-}
-
+// Thermostat is an individual thermostat
 type Thermostat struct {
-	DeviceId               string    `json:"device_id"`
+	DeviceID               string    `json:"device_id"`
 	Locale                 string    `json:"locale"`
 	SoftwareVersion        string    `json:"software_version"`
-	StructureId            string    `json:"structure_id"`
+	StructureID            string    `json:"structure_id"`
 	Name                   string    `json:"name"`
 	NameLong               string    `json:"name_long"`
 	LastConnection         time.Time `json:"last_connection"`
@@ -67,8 +63,9 @@ type Thermostat struct {
 	Humidity               Humidity  `json:"humidity"`
 }
 
+// Structure is a structure that may contain multiple devices
 type Structure struct {
-	StructureId         string    `json:"structure_id"`
+	StructureID         string    `json:"structure_id"`
 	Thermostats         []string  `json:"thermostats"`
 	Away                Presence  `json:"away"`
 	Name                string    `json:"name"`
@@ -76,95 +73,130 @@ type Structure struct {
 	PeakPeriodEndTime   time.Time `json:"peak_period_end_time"`
 	TimeZone            string    `json:"time_zone"`
 	Eta                 struct {
-		TripId                      string    `json:"trip_id"`
+		TripID                      string    `json:"trip_id"`
 		EstimatedArrivalWindowBegin time.Time `json:"estimated_arrival_window_begin"`
 		EstimatedArrivalWindowEnd   time.Time `json:"estimated_arrival_window_end"`
 	} `json:"eta"`
 }
 
+// Session is a session with the Nest API
 type Session struct {
 	token string
 }
 
+// Presence is home or away
 type Presence string
+
+// TempF is a temperature in Fahrenheit
 type TempF float64
+
+// TempC is a temperature in Celsius
 type TempC float64
+
+// Humidity is a relative humidity measurement
 type Humidity float64
+
+// TempScale indicates F or C
 type TempScale string
+
+// HighLow is a fan speed
 type HighLow string
+
+// HvacMode is a heat/cool mode
 type HvacMode string
 
 const (
-	ScaleC    = TempScale("C")
-	ScaleF    = TempScale("F")
-	TypeHigh  = HighLow("high")
-	TypeLow   = HighLow("low")
-	ModeHeat  = HvacMode("heat")
-	ModeCool  = HvacMode("cool")
+	// ScaleC is the Celsius scale
+	ScaleC = TempScale("C")
+	// ScaleF is the Fahrenheit scale
+	ScaleF = TempScale("F")
+	// TypeHigh is high fan speed
+	TypeHigh = HighLow("high")
+	// TypeLow is low fan speed
+	TypeLow = HighLow("low")
+	// ModeHeat is heating mode
+	ModeHeat = HvacMode("heat")
+	// ModeCool is cooling mode
+	ModeCool = HvacMode("cool")
+	// ModeRange can heat or cool
 	ModeRange = HvacMode("heat-cool")
-	ModeOff   = HvacMode("off")
-	Away      = Presence("away")
-	Home      = Presence("home")
-	AutoAway  = Presence("auto-away")
+	// ModeOff turns off the HVAC
+	ModeOff = HvacMode("off")
+	// Away means no one is home
+	Away = Presence("away")
+	// Home means someone is home
+	Home = Presence("home")
+	// AutoAway lets Nest detect if someone is home
+	AutoAway = Presence("auto-away")
 )
 
+// Temperature is a temperature
 type Temperature interface {
 	Value() float64
 	Scale() TempScale
 	String() string
 }
 
+// NewTemp creates a temperature with a given value and scale
 func NewTemp(value float64, scale TempScale) Temperature {
 	if scale == ScaleF {
 		return TempF(value)
-	} else {
-		return TempC(value)
 	}
+	return TempC(value)
 }
 
+// Value returns the float value of a TempF
 func (t TempF) Value() float64 {
 	return float64(t)
 }
 
+// Scale returns the unit scale of a TempF
 func (t TempF) Scale() TempScale {
 	return ScaleF
 }
 
+// String returns a formatted string value for a TempF
 func (t TempF) String() string {
 	return strconv.FormatFloat(float64(t), 'f', -1, 64) + "°F"
 }
 
+// Value returns the float value of a TempC
 func (t TempC) Value() float64 {
 	return float64(t)
 }
 
+// Scale returns the unit scale of a TempC
 func (t TempC) Scale() TempScale {
 	return ScaleC
 }
 
+// String returns a formatted string value for a TempC
 func (t TempC) String() string {
 	return strconv.FormatFloat(float64(t), 'f', -1, 64) + "°C"
 }
 
+// String returns a formatted string for a humidity value
 func (h Humidity) String() string {
 	return strconv.FormatFloat(float64(h), 'f', -1, 64) + "%"
 }
 
+// OpenSession opens a new Nest API session
 func OpenSession(token string) Session {
 	return Session{token: token}
 }
 
+// GetAllData rerieves all user data
 func (session *Session) GetAllData() (allData AllData, err error) {
 	data, err := session.get("/")
 	if err != nil {
 		return
 	}
 
-	dec := json.NewDecoder(strings.NewReader(data))
-	err = dec.Decode(&allData)
+	err = json.NewDecoder(strings.NewReader(data)).Decode(&allData)
 	return
 }
 
+// GetThermostats gets a list of all thermostats attached to a user account
 func (session *Session) GetThermostats() (thermostats []Thermostat, err error) {
 	data, err := session.get("/thermostats")
 	if err != nil {
@@ -172,9 +204,8 @@ func (session *Session) GetThermostats() (thermostats []Thermostat, err error) {
 	}
 
 	var s Devices
-	dec := json.NewDecoder(strings.NewReader(data))
-	if err := dec.Decode(&s); err != nil {
-		return thermostats, err
+	if err = json.NewDecoder(strings.NewReader(data)).Decode(&s); err != nil {
+		return
 	}
 
 	for _, d := range s.Thermostats {
@@ -184,23 +215,24 @@ func (session *Session) GetThermostats() (thermostats []Thermostat, err error) {
 	return
 }
 
-func (session *Session) IsAway(structureId string) (bool, error) {
-	contents, err := session.get("/structures/" + structureId)
-	if err != nil {
-		return false, err
+// IsAway indicates whether everyone is away from a structure
+func (session *Session) IsAway(structureID string) (bool, error) {
+	var contents []byte
+	if contents, err = session.get("/structures/" + structureID); err != nil {
+		return
 	}
 
 	var s Structure
-	dec := json.NewDecoder(strings.NewReader(contents))
-	if err := dec.Decode(&s); err != nil {
-		return false, err
+	if err = json.NewDecoder(strings.NewReader(contents)).Decode(&s); err != nil {
+		return
 	}
 
 	return s.Away != "home", nil
 }
 
-func (session *Session) SetTargetTemp(nestId string, temp Temperature, hilo HighLow) (t Temperature, err error) {
-	path := fmt.Sprintf("/devices/thermostats/%s/target_temperature_", nestId)
+// SetTargetTemp sets the target temperature for a particular mode and Nest
+func (session *Session) SetTargetTemp(nestID string, temp Temperature, hilo HighLow) (t Temperature, err error) {
+	path := fmt.Sprintf("/devices/thermostats/%s/target_temperature_", nestID)
 	if hilo != "" {
 		path += string(hilo) + "_"
 	}
@@ -212,16 +244,17 @@ func (session *Session) SetTargetTemp(nestId string, temp Temperature, hilo High
 		return
 	}
 
-	val, err := strconv.ParseFloat(resp, 64)
-	if err != nil {
+	var val float64
+	if val, err = strconv.ParseFloat(resp, 64); err != nil {
 		return
 	}
 
 	return NewTemp(val, temp.Scale()), nil
 }
 
-func (session *Session) SetPresence(structureId string, presence Presence) (err error) {
-	path := fmt.Sprintf("/structures//%s/away", structureId)
+// SetPresence sets the presence mode for a particular structure
+func (session *Session) SetPresence(structureID string, presence Presence) (err error) {
+	path := fmt.Sprintf("/structures//%s/away", structureID)
 	data, _ := json.Marshal(presence)
 
 	var resp string
@@ -229,19 +262,20 @@ func (session *Session) SetPresence(structureId string, presence Presence) (err 
 		return
 	}
 
-	log.Printf("got response: %s", resp)
+	dlog.Printf("got response: %s", resp)
 
 	return nil
 }
 
+// TemperatureScaleName returns the name of the temperature scale being used by a specific Nest
 func (t *Thermostat) TemperatureScaleName() string {
 	if t.TemperatureScale == ScaleF {
 		return "Fahrenheit"
-	} else {
-		return "Celsius"
 	}
+	return "Celsius"
 }
 
+// SetTemperatureScale sets the scale for a specific Nest
 func (t *Thermostat) SetTemperatureScale(name string) (err error) {
 	lname := strings.ToLower(name)
 	if lname == "fahrenheit" {
@@ -254,6 +288,7 @@ func (t *Thermostat) SetTemperatureScale(name string) (err error) {
 	return
 }
 
+// TargetTemperature returns the target temperature in the given scale
 func (t *Thermostat) TargetTemperature(scale TempScale) Temperature {
 	switch scale {
 	case ScaleF:
@@ -265,6 +300,7 @@ func (t *Thermostat) TargetTemperature(scale TempScale) Temperature {
 	}
 }
 
+// TargetTemperatureHigh returns the target high temperature in the given scale
 func (t *Thermostat) TargetTemperatureHigh(scale TempScale) Temperature {
 	switch scale {
 	case ScaleF:
@@ -276,6 +312,7 @@ func (t *Thermostat) TargetTemperatureHigh(scale TempScale) Temperature {
 	}
 }
 
+// TargetTemperatureLow returns the target low temperature in the given scale
 func (t *Thermostat) TargetTemperatureLow(scale TempScale) Temperature {
 	switch scale {
 	case ScaleF:
@@ -287,6 +324,7 @@ func (t *Thermostat) TargetTemperatureLow(scale TempScale) Temperature {
 	}
 }
 
+// AwayTemperatureHigh returns the target high away temperature in the given scale
 func (t *Thermostat) AwayTemperatureHigh(scale TempScale) Temperature {
 	switch scale {
 	case ScaleF:
@@ -298,6 +336,7 @@ func (t *Thermostat) AwayTemperatureHigh(scale TempScale) Temperature {
 	}
 }
 
+// AwayTemperatureLow returns the target low away temperature in the given scale
 func (t *Thermostat) AwayTemperatureLow(scale TempScale) Temperature {
 	switch scale {
 	case ScaleF:
@@ -309,6 +348,7 @@ func (t *Thermostat) AwayTemperatureLow(scale TempScale) Temperature {
 	}
 }
 
+// AmbientTemperature returns the current ambient temperature in the given scale
 func (t *Thermostat) AmbientTemperature(scale TempScale) Temperature {
 	switch scale {
 	case ScaleF:
@@ -337,7 +377,7 @@ func (session *Session) rawRequest(method, uri string, data []byte, follow int) 
 	}
 	request.Header.Add("Accept", "application/json")
 
-	log.Printf("request: %#v", request)
+	dlog.Printf("request: %#v", request)
 
 	var resp *http.Response
 	if resp, err = client.Do(request); err != nil {
@@ -345,7 +385,7 @@ func (session *Session) rawRequest(method, uri string, data []byte, follow int) 
 	}
 	defer resp.Body.Close()
 
-	log.Printf("response: %#v\n", resp)
+	dlog.Printf("response: %#v\n", resp)
 	if resp.StatusCode >= 400 {
 		return "", fmt.Errorf(resp.Status)
 	}
@@ -355,9 +395,9 @@ func (session *Session) rawRequest(method, uri string, data []byte, follow int) 
 		return session.rawRequest(method, uri, data, follow-1)
 	}
 
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+	var content []byte
+	if content, err = ioutil.ReadAll(resp.Body); err != nil {
+		return
 	}
 
 	return string(content), nil
@@ -367,9 +407,9 @@ func (session *Session) request(method, path string, data []byte) (out string, e
 	q := url.Values{}
 	q.Set("auth", session.token)
 
-	reqUri := ApiHost + path + "?" + q.Encode()
+	reqURI := nestAPI + path + "?" + q.Encode()
 
-	return session.rawRequest(method, reqUri, data, 3)
+	return session.rawRequest(method, reqURI, data, 3)
 }
 
 func (session *Session) get(path string) (string, error) {

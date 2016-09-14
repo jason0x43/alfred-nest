@@ -2,39 +2,38 @@ package main
 
 import (
 	"log"
+	"os"
 	"path"
 	"time"
 
 	"github.com/jason0x43/go-alfred"
 )
 
-type Config struct {
-	NestId       string
-	AccessToken  string
-	AccessExpiry time.Time
-	Scale        TempScale
-}
-
-type Cache struct {
-	Time    time.Time
-	AllData AllData
-}
+var dlog = log.New(os.Stderr, "[nest] ", log.LstdFlags)
 
 const (
-	ClientId     = "359f0dd0-8935-4390-9f10-863a5b7ec606"
-	CallbackPath = "/oauth/callback"
-	CallbackPort = "2222"
-	RedirectUri  = "http://localhost:" + CallbackPort + CallbackPath
+	clientID     = "359f0dd0-8935-4390-9f10-863a5b7ec606"
+	callbackPath = "/oauth/callback"
+	callbackPort = "2222"
+	redirectURI  = "http://localhost:" + callbackPort + callbackPath
 )
 
 //go:generate go build support/oauthgen.go
 //go:generate ./oauthgen credentials.go
 
-var ClientSecret string
+var clientSecret string
 var cacheFile string
 var configFile string
-var config Config
-var cache Cache
+var config struct {
+	NestID       string
+	AccessToken  string
+	AccessExpiry time.Time
+	Scale        TempScale
+}
+var cache struct {
+	Time    time.Time
+	AllData AllData
+}
 
 // usage: ./alfred-nest {do,tell} "keyword query"
 func main() {

@@ -2,33 +2,31 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"strings"
 
 	"github.com/jason0x43/go-alfred"
 )
 
+// ConfigCommand configs the workflow
 type ConfigCommand struct{}
 
-func (t ConfigCommand) Keyword() string {
-	return "config"
+// About returns information about a command
+func (c ConfigCommand) About() alfred.CommandDef {
+	return alfred.CommandDef{
+		Keyword:     "config",
+		Description: "Set workflow options",
+		IsEnabled:   isAuthorized(),
+	}
 }
 
-func (t ConfigCommand) IsEnabled() bool {
-	return isAuthorized()
-}
-
-func (t ConfigCommand) MenuItem() alfred.Item {
-	return alfred.NewKeywordItem(t.Keyword(), "", " ", "Set workflow options")
-}
-
-func (t ConfigCommand) Items(prefix, query string) (items []alfred.Item, err error) {
+// Items returns a list of filter items
+func (c ConfigCommand) Items(arg, dataa string) (items []alfred.Item, err error) {
 	parts := alfred.TrimAllLeft(strings.SplitN(query, " ", 2))
-	log.Printf("parts: %s", parts[0])
+	dlog.Printf("parts: %s", parts[0])
 
 	if len(parts) == 1 {
 		addItem := func(name, desc string) {
-			if alfred.FuzzyMatches(name, query) {
+			if alfred.FuzzyMatches(name, arg) {
 				items = append(items, alfred.NewKeywordItem(name, prefix, " ", desc))
 			}
 		}
@@ -63,7 +61,7 @@ func (t ConfigCommand) Items(prefix, query string) (items []alfred.Item, err err
 		}
 	}
 
-	log.Printf("super sorting %v", items)
+	dlog.Printf("super sorting %v", items)
 	items = alfred.SortItemsForKeyword(items, query)
 	return
 }
@@ -89,7 +87,7 @@ func (c ConfigCommand) Do(query string) (out string, err error) {
 
 	if out != "" {
 		if err := alfred.SaveJson(configFile, &config); err != nil {
-			log.Printf("Error saving cache: %s\n", err)
+			dlog.Printf("Error saving cache: %s\n", err)
 		}
 	}
 

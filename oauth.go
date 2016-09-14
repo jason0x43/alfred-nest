@@ -15,8 +15,10 @@ import (
 	"github.com/jason0x43/go-alfred"
 )
 
-var OauthApiHost = "https://api.home.nest.com/oauth2/access_token"
-var OauthTitle = "Alfred Nest"
+const (
+	oauthAPIHost = "https://api.home.nest.com/oauth2/access_token"
+	oauthTitle   = "Alfred Nest"
+)
 
 var listener net.Listener
 
@@ -24,6 +26,7 @@ type closeableListener struct {
 	net.Listener
 }
 
+// StartAuthServer starts an authorization callback server
 func StartAuthServer() (err error) {
 	listener, err = net.Listen("tcp", ":"+CallbackPort)
 	if err != nil {
@@ -54,15 +57,15 @@ func oauthHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("error parsing query:", err)
 	}
 
-	oauth_params := url.Values{}
-	oauth_params.Set("code", params.Get("code"))
-	oauth_params.Set("client_id", ClientId)
-	oauth_params.Set("client_secret", ClientSecret)
-	oauth_params.Set("grant_type", "authorization_code")
+	oauthParams := url.Values{}
+	oauthParams.Set("code", params.Get("code"))
+	oauthParams.Set("client_id", clientID)
+	oauthParams.Set("client_secret", clientSecret)
+	oauthParams.Set("grant_type", "authorization_code")
 
-	log.Println("POSTing to " + OauthApiHost)
+	log.Println("POSTing to " + oauthAPIHost)
 
-	req, err := http.NewRequest("POST", OauthApiHost, strings.NewReader(oauth_params.Encode()))
+	req, err := http.NewRequest("POST", oauthAPIHost, strings.NewReader(oauthParams.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
@@ -120,7 +123,7 @@ func writeResponse(content, class string, w http.ResponseWriter, r *http.Request
 	log.Printf("Writing response...")
 	fmt.Fprintf(w, "<!DOCTYPE html>\n"+
 		"<html><head>"+
-		"<title>"+OauthTitle+"</title>"+
+		"<title>"+oauthTitle+"</title>"+
 		"<style>"+
 		"body{font-family:sans-serif}"+
 		"h1{font-size:20px}"+

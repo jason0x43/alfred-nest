@@ -8,7 +8,7 @@
 	<string>Tools</string>
 	<key>connections</key>
 	<dict>
-		<key>30778AA4-074D-4ADB-9A87-8F17F5ED205E</key>
+		<key>3DEF2318-9652-4076-A511-64D762A35B62</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
@@ -17,40 +17,38 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 		<key>588C0B96-CE46-4CEF-AD2C-5255CCE9C033</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>05259E81-CC29-49C5-B96F-794CC2C99604</string>
+				<string>72D57A2F-A2DF-4370-AAF4-806270E5FC49</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
-		<key>F9D4B430-2B0C-4AE5-9A66-AB461519B979</key>
+		<key>72D57A2F-A2DF-4370-AAF4-806270E5FC49</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>05259E81-CC29-49C5-B96F-794CC2C99604</string>
+				<string>3DEF2318-9652-4076-A511-64D762A35B62</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 		<key>FC031BA1-1E00-4855-9556-620FDF95844E</key>
 		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>30778AA4-074D-4ADB-9A87-8F17F5ED205E</string>
-				<key>modifiers</key>
-				<integer>524288</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-			</dict>
 			<dict>
 				<key>destinationuid</key>
 				<string>588C0B96-CE46-4CEF-AD2C-5255CCE9C033</string>
@@ -58,14 +56,8 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
-			</dict>
-			<dict>
-				<key>destinationuid</key>
-				<string>F9D4B430-2B0C-4AE5-9A66-AB461519B979</string>
-				<key>modifiers</key>
-				<integer>262144</integer>
-				<key>modifiersubtext</key>
-				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 	</dict>
@@ -82,25 +74,8 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>concurrently</key>
+				<key>alfredfiltersresults</key>
 				<false/>
-				<key>escaping</key>
-				<integer>4</integer>
-				<key>script</key>
-				<string>./alfred-nest do "{query}"</string>
-				<key>type</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>30778AA4-074D-4ADB-9A87-8F17F5ED205E</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
@@ -118,7 +93,11 @@
 				<key>runningsubtext</key>
 				<string>Loading..</string>
 				<key>script</key>
-				<string>./alfred-nest tell "{query}"</string>
+				<string>./alfred-nest "$1" "$data"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
 				<key>subtext</key>
 				<string>Access your Nest</string>
 				<key>title</key>
@@ -133,7 +112,7 @@
 			<key>uid</key>
 			<string>FC031BA1-1E00-4855-9556-620FDF95844E</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -142,11 +121,7 @@
 				<false/>
 				<key>onlyshowifquerypopulated</key>
 				<true/>
-				<key>output</key>
-				<integer>0</integer>
 				<key>removeextension</key>
-				<false/>
-				<key>sticky</key>
 				<false/>
 				<key>text</key>
 				<string>{query}</string>
@@ -158,7 +133,7 @@
 			<key>uid</key>
 			<string>05259E81-CC29-49C5-B96F-794CC2C99604</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -169,6 +144,10 @@
 				<integer>4</integer>
 				<key>script</key>
 				<string>./alfred-nest do "{query}"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
 				<key>type</key>
 				<integer>0</integer>
 			</dict>
@@ -177,58 +156,78 @@
 			<key>uid</key>
 			<string>588C0B96-CE46-4CEF-AD2C-5255CCE9C033</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>concurrently</key>
+				<key>inputstring</key>
+				<string>{query}</string>
+				<key>matchcasesensitive</key>
 				<false/>
-				<key>escaping</key>
-				<integer>4</integer>
-				<key>script</key>
-				<string>./alfred-nest do "{query}"</string>
-				<key>type</key>
-				<integer>0</integer>
+				<key>matchmode</key>
+				<integer>2</integer>
+				<key>matchstring</key>
+				<string>^(?!-trigger\b)</string>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.action.script</string>
+			<string>alfred.workflow.utility.filter</string>
 			<key>uid</key>
-			<string>F9D4B430-2B0C-4AE5-9A66-AB461519B979</string>
+			<string>72D57A2F-A2DF-4370-AAF4-806270E5FC49</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.hidealfred</string>
+			<key>uid</key>
+			<string>3DEF2318-9652-4076-A511-64D762A35B62</string>
+			<key>version</key>
+			<integer>1</integer>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Version: 0.1.1</string>
+	<string>This workflow uses the official Nest API to control one or more Nest thermostats.</string>
 	<key>uidata</key>
 	<dict>
 		<key>05259E81-CC29-49C5-B96F-794CC2C99604</key>
 		<dict>
+			<key>xpos</key>
+			<integer>890</integer>
 			<key>ypos</key>
-			<real>130</real>
+			<integer>50</integer>
 		</dict>
-		<key>30778AA4-074D-4ADB-9A87-8F17F5ED205E</key>
+		<key>3DEF2318-9652-4076-A511-64D762A35B62</key>
 		<dict>
+			<key>xpos</key>
+			<integer>800</integer>
 			<key>ypos</key>
-			<real>10</real>
+			<integer>80</integer>
 		</dict>
 		<key>588C0B96-CE46-4CEF-AD2C-5255CCE9C033</key>
 		<dict>
+			<key>xpos</key>
+			<integer>520</integer>
 			<key>ypos</key>
-			<real>130</real>
+			<integer>50</integer>
 		</dict>
-		<key>F9D4B430-2B0C-4AE5-9A66-AB461519B979</key>
+		<key>72D57A2F-A2DF-4370-AAF4-806270E5FC49</key>
 		<dict>
+			<key>xpos</key>
+			<integer>710</integer>
 			<key>ypos</key>
-			<real>250</real>
+			<integer>80</integer>
 		</dict>
 		<key>FC031BA1-1E00-4855-9556-620FDF95844E</key>
 		<dict>
+			<key>xpos</key>
+			<integer>230</integer>
 			<key>ypos</key>
-			<real>130</real>
+			<integer>50</integer>
 		</dict>
 	</dict>
+	<key>version</key>
+	<string>1.0.0</string>
 	<key>webaddress</key>
 	<string>http://github.com/jason0x43/alfred-nest</string>
 </dict>

@@ -4,42 +4,31 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"net/url"
-	"os"
 	"os/exec"
 
 	"github.com/jason0x43/go-alfred"
 )
 
-// authorize ---------------------------------------------
-
+// AuthorizeCommand authorizes a user
 type AuthorizeCommand struct{}
 
-func (c AuthorizeCommand) Keyword() string {
-	return "authorize"
-}
-
-func (c AuthorizeCommand) IsEnabled() bool {
-	return config.AccessToken == ""
-}
-
-func (c AuthorizeCommand) MenuItem() alfred.Item {
-	return alfred.Item{
-		Title:        c.Keyword(),
-		Autocomplete: c.Keyword(),
-		Arg:          "authorize",
-		SubtitleAll:  "Authorize this workflow to access your Nest",
+// About returns information about a command
+func (c AuthorizeCommand) About() alfred.CommandDef {
+	return alfred.CommandDef{
+		Keyword:     "authorize",
+		Description: "Authorize this workflow to access your Nest",
+		IsEnabled:   config.AccessToken == "",
+		Arg: &alfred.ItemArg{
+			Keyword: "authorize",
+			Mode:    alfred.ModeDo,
+		},
 	}
 }
 
-func (c AuthorizeCommand) Items(prefix, query string) ([]alfred.Item, error) {
-	item := c.MenuItem()
-	item.Arg = "authorize"
-	return []alfred.Item{item}, nil
-}
-
-func (c AuthorizeCommand) Do(query string) (string, error) {
-	if err := exec.Command(os.Args[0], "do", "serve").Start(); err != nil {
-		return "", err
+// Do runs the command
+func (c AuthorizeCommand) Do(query string) (out string, err error) {
+	if err = StartAuthServer(); err != nil {
+		return
 	}
 
 	randBytes := make([]byte, 32)
@@ -49,26 +38,9 @@ func (c AuthorizeCommand) Do(query string) (string, error) {
 	randString := base64.URLEncoding.EncodeToString(randBytes)
 
 	params := url.Values{}
-	params.Add("client_id", ClientId)
+	params.Add("client_id", clientID)
 	params.Add("state", randString)
 
-	oauthUrl := "https://home.nest.com/login/oauth2?" + params.Encode()
-	return "", exec.Command("open", oauthUrl).Run()
-}
-
-// auth server -------------------------------------------
-
-type AuthServerCommand struct{}
-
-func (c AuthServerCommand) Keyword() string {
-	return "serve"
-}
-
-func (c AuthServerCommand) IsEnabled() bool {
-	return true
-}
-
-func (c AuthServerCommand) Do(query string) (string, error) {
-	err := StartAuthServer()
-	return "", err
+	oauthURL := "https://home.nest.com/login/oauth2?" + params.Encode()
+	return "", exec.Command("open", oauthURL).Run()
 }
